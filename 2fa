@@ -1,0 +1,77 @@
+#!/bin/bash
+_gpg2=$(which gpg2)
+_oathtool=$(which oathtool)
+DIR="$HOME/.2fa"
+#set $GPG_2FA to "example@gmail.com"
+[[ -z '$GPG_2FA' ]] || GPG_UID="$GPG_2FA"
+
+usage() {
+    echo "usage: 2fa -r gpg@example.com {add,gen,ls}"
+    echo "  - add <service> <secret_key>"
+    echo "  - gen <service>"
+    echo "  - ls"
+    echo "reference man pages for more info"
+}
+
+2fa_init() {
+    [[ -d $DIR ]] || mkdir -p $DIR
+    [[ -z $GPG_UID ]] && { echo "No GPG key specified, add '-r example@hotmail.com' or set \$GPG_2FA"; exit 1;}
+    type xclip > /dev/null 2>&1 && clipboard_cmd="xclip -sel clip"
+    type wl-copy > /dev/null 2>&1 && clipboard_cmd="wl-copy"
+}
+
+#2fa ls
+2fa_list() {
+    echo "Existing keys in $DIR:"
+    for f in $DIR/*.key.gpg; do
+        echo "   ->" $(basename $f | cut -f 1 -d '.')
+    done
+}
+
+#2fa add gmail xxxxxxxxxxxxxxxx
+#encrypt totp secret 'xxxx' using GPG_UID to $DIR/gmail.key.gpg
+2fa_encrypt() {
+    2fa_init
+    [ "$1" == "" ] && { usage; exit 1; }
+    [ "$2" == "" ] && { usage; exit 1; }
+    [[ -f $DIR/$1.key.gpg ]] && {
+        while true; do
+            read -p "2FA already exists for  $1. Overwrite? (y\n)" yn
+            case $yn in
+                yes|y) break;;
+                *) echo "Aborted."; exit 1;;
+            esac
+        done
+    }
+    echo $2 | $_gpg2 -r $GPG_UID --encrypt - > $DIR/$1.key.gpg
+}
+
+#2fa gen gmail
+#decrypt *.key.gpg TOTP secret for service and generate code
+2fa_decrypt() {
+    2fa_init
+    [[ -f $DIR/$1.key.gpg ]] || { echo "No secret found for service $1"; 2fa_list; exit 1;}
+    totp=$($_gpg2 --quiet -r $GPG_UID --decrypt $DIR/$1.key.gpg)
+    code=$($_oathtool -b --totp "$totp")
+    echo $code
+    [[ -z $clipboard_cmd ]] || { echo $code | $clipboard_cmd;}
+}
+
+#main
+while getopts r:h option
+do
+  case "${option}"
+    in
+    r) GPG_UID=${OPTARG};;
+    h) usage; exit 0;;
+  esac
+done
+shift $((OPTIND -1))
+case $1
+    in
+    'add') shift; 2fa_encrypt $@;;
+    'gen') shift; 2fa_decrypt $@;;
+    'ls') shift; 2fa_list $@;;
+    *) usage;;
+esac
+exit 0

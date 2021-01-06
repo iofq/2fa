@@ -1,0 +1,20 @@
+.\" Manpage for 2fa.
+.TH man 1 "04 Jan 2021" "1.0" "2fa man page"
+.SH NAME
+2fa \- 'pass'-esque manager for OAuth secrets and code generation
+.SH SYNOPSIS
+2fa -r gpg@example.com {add,gen,ls}
+.SH DEPENDANCIES
+2fa relies on gpg2 and oathtool (https://www.nongnu.org/oath-toolkit/index.html). xclip or wl-clipboard is optional for copy-to-clipboard.
+.SH DESCRIPTION
+2fa uses your PGP key to encrypt OAuth secrets and store them locally in ~/.2fa. When generating codes, the reverse happens: the file is decrypted, piped into oathtool, and the resulting code copied to the clipboard (via xclip or wl-clipboard, if installed). Backing up ~/.2fa is highly recommended.
+.SH COMMANDS
+2fa add <service> <secret_key> - Encrypts sercret key in ~/.2fa/<service>.key.gpg
+2fa gen <service> -  Decrypts ~/.2fa/<service>.key.gpg and generates a one-time TOTP code from the secret. The TOTP code is copied to the clipboard via xclip or wl-clipboard, if installed.
+2fa ls - Lists all services/secrets in ~/.2fa 
+.SH OPTIONS
+-r gpg@example.com - 2fa uses your PGP/GPG key to encrypt files and needs to know which key to use. You can instead automate this by setting the env var $GPG_2FA to "gpg@example.com"
+.SH SEE ALSO
+gpg(1), oathtool(1), xclip(1)
+.SH AUTHOR
+iofq (mail@iofq.net)
