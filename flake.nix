@@ -20,11 +20,8 @@
           name = "2fa-${version}";
           src = self;
           propagatedBuildInputs = [ prev.oath-toolkit prev.gnupg ];
-          installPhase =
-            ''
-              mkdir -p $out/bin
-              cp 2fa $out/bin/
-            '';
+          dontBuild = true;
+          makeFlags = [ "PREFIX=$(out)" ];
         };
 
       };
