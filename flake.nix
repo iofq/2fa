@@ -19,7 +19,7 @@
         twofa = with final; stdenv.mkDerivation rec {
           name = "2fa-${version}";
           src = self;
-          propagatedBuildInputs = [ prev.oath-toolkit prev.gnupg ];
+          propagatedBuildInputs = [ prev.oath-toolkit ];
           dontBuild = true;
           makeFlags = [ "PREFIX=$(out)" ];
         };
