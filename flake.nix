@@ -28,6 +28,8 @@
                 oath-toolkit
                 gnupg
                 coreutils-full
+                wl-clipboard
+                xclip
                 which
               ]}'
           ";

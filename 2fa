@@ -4,7 +4,6 @@ _oathtool=$(which oathtool)
 DIR="$HOME/.2fa"
 #set $GPG_2FA to "example@gmail.com"
 [[ -z '$GPG_2FA' ]] || GPG_UID="$GPG_2FA"
-
 usage() {
     echo "usage: 2fa -r gpg@example.com {add,gen,ls}"
     echo "  - add <service> <secret_key>"
