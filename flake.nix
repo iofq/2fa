@@ -27,6 +27,7 @@
             wrapProgram $out/bin/2fa --set PATH '${lib.makeBinPath [
                 oath-toolkit
                 gnupg
+                coreutils-full
                 which
               ]}'
           ";
