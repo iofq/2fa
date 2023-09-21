@@ -19,8 +19,16 @@
         twofa = with final; stdenv.mkDerivation rec {
           name = "2fa-${version}";
           src = self;
-          propagatedBuildInputs = [ prev.oath-toolkit ];
+          nativeBuildInputs = [ pkgs.makeWrapper ];
           dontBuild = true;
+          installPhase = "
+            install -Dm755 2fa $out/bin/2fa
+            patchShebangs $out/bin/2fa
+            wrapProgram $out/bin/2fa --set PATH '${lib.makeBinPath [
+                oath-toolkit
+                which
+              ]}'
+          ";
           makeFlags = [ "PREFIX=$(out)" ];
         };
 
