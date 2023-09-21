@@ -26,6 +26,7 @@
             patchShebangs $out/bin/2fa
             wrapProgram $out/bin/2fa --set PATH '${lib.makeBinPath [
                 oath-toolkit
+                gpg2
                 which
               ]}'
           ";
